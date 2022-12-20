@@ -1,0 +1,100 @@
+{% comment %}
+** Image with text - dynamic **
+- Draggable section
+- Uses blocks
+{% endcomment %}
+
+{% comment %} Content settings {% endcomment %}
+{%- assign blocks = section.blocks -%}
+{% if section.settings.grid_layout == false %}
+  {%- assign grid_layout = 'standard' -%}
+{% endif %}
+{% comment %} End content settings {% endcomment %}
+
+<section class="section {% if section.settings.grid_layout == true %}is-width-wide has-no-side-gutter{% endif %}">
+  <div class="container">
+    <div class="one-whole column">
+      <div class="image-with-text grid-layout--{{ grid_layout }} across-{{ section.settings.featured_links_per_row }}">
+        {% if blocks.size > 0 %}
+          {% for block in blocks %}
+            {% capture right_text %}
+              <section class="image-with-text--section image-with-text--image section-{{ forloop.index }}" {{ block.shopify_attributes }}>
+                <div class="image-with-text--half image-with-text--image">
+                  <div class="image-with-text--wrap">
+                    <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %} title="{{ block.settings.title | escape }}">
+                      {% if block.settings.image %}
+                        {% render 'image-element',
+                                image: block.settings.image,
+                                alt: block.settings.image.alt
+                        %}
+                      {% else %}
+                        {% capture i %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
+                        {{ 'collection-' | append: i | placeholder_svg_tag: 'placeholder-svg placeholder-svg--promotions' }}
+                      {% endif %}
+                    </a>
+                  </div>
+                </div>
+                <div class="image-with-text--half">
+                  <div class="info text-align--{{ block.settings.frontpage_text_align }}">
+                    <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %} class="collection_title">
+                      {{ block.settings.title | escape }}
+                    </a>
+                    {% if block.settings.text != blank %}
+                      <div class="description">{{ block.settings.text }}</div>
+                    {% endif %}
+                    {% if block.settings.button_label != blank %}
+                      <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %} class="action_button">
+                        {{ block.settings.button_label | escape }}
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </section>
+            {% endcapture %}
+            {% capture left_text %}
+                <section class="image-with-text--section image-with-text--image section-{{ forloop.index }}" {{ block.shopify_attributes }}>
+                  <div class="image-with-text--half">
+                    <div class="info text-align--{{ block.settings.frontpage_text_align }}">
+                      <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %} class="collection_title">
+                        {{ block.settings.title | escape }}
+                      </a>
+                      {% if block.settings.text != blank %}
+                        <div class="description">{{ block.settings.text }}</div>
+                      {% endif %}
+                      {% if block.settings.button_label != blank %}
+                        <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %} class="action_button">
+                          {{ block.settings.button_label | escape }}
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="image-with-text--half image-with-text--image">
+                    <div class="image-with-text--wrap">
+                      <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %} title="{{ block.settings.title | escape }}">
+                        {% if block.settings.image %}
+                          {% render 'image-element',
+                                  image: block.settings.image,
+                                  alt: block.settings.image.alt
+                          %}
+                        {% else %}
+                          {% capture i %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
+                          {{ 'collection-' | append: i | placeholder_svg_tag: 'placeholder-svg placeholder-svg--promotions' }}
+                        {% endif %}
+                      </a>
+                    </div>
+                  </div>
+                </section>
+            {% endcapture %}
+            {% if block.settings.grid_text_position == 'right' %}
+              {{ right_text }}
+            {% endif %}
+            {% if block.settings.grid_text_position == 'left' %}
+              {{ left_text }}
+            {% endif %}
+
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>

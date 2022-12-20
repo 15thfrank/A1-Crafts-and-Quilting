@@ -1,0 +1,68 @@
+{% paginate collections by section.settings.pagination_limit %}
+  <section class="section">
+    <div class="container">
+      {%- assign collections_per_row = section.settings.collections_per_row -%}
+
+      <div class="one-whole column collection_nav">
+        <h1 class="collection_title">{{ 'collections.general.title' | t }}</h1>
+      </div>
+
+      {% for collection in collections %}
+        {% unless collection.handle == 'frontpage' %}
+          {% capture collection_title %}
+            {{ collection.title | escape }}
+          {% endcapture %}
+
+          <div class="{% render 'column-width', value: collections_per_row %} columns {% if settings.mobile_products_per_row == '1' %}medium-down--one-whole{% else %}medium-down--one-half{% endif %} thumbnail">
+            <a href="{{ collection.url }}" title="{{ collection_title }}">
+              {% if collection.image %}
+                {% render 'image-element',
+                        image: collection.image.src,
+                        alt: collection.image.alt
+                %}
+              {% else %}
+                {% render 'image-element',
+                        image: collection.products.first.featured_image,
+                        alt: collection.image.alt
+                %}
+              {% endif %}
+
+              <div class="info">
+                <span class="title">{{ collection.title }}</span>
+              </div>
+            </a>
+          </div>
+        {% endunless %}
+      {% endfor %}
+
+      {% render 'pagination', paginate: paginate %}
+    </div>
+  </section>
+{% endpaginate %}
+
+{% schema %}
+  {
+    "name": "Collections",
+    "class": "shopify-section--collection-template",
+    "settings": [
+      {
+        "type": "range",
+        "id": "collections_per_row",
+        "label": "Collections per row",
+        "min": 2,
+        "max": 4,
+        "step": 1,
+        "default": 3
+      },
+      {
+        "type": "range",
+        "id": "pagination_limit",
+        "label": "Collections per page",
+        "min": 1,
+        "max": 50,
+        "step": 1,
+        "default": 48
+      }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,90 @@
+{% comment %}
+** Featured promotions - dynamic **
+- Draggable section
+- Uses blocks
+{% endcomment %}
+
+{% if section.blocks.size > 0 %}
+
+  {%- assign featured_promos_per_row = section.settings.featured_promos_per_row | minus: 0 -%}
+
+  <section class="section {% if section.settings.wide_display == true %}is-width-wide has-no-side-gutter{% endif %}">
+    <div class="container">
+      <div class="featured-promotions-wrapper content">
+        <div id="js-featured-promotions" class="featured-promotions promo-per-row-{{ featured_promos_per_row }}">
+          {% for block in section.blocks %}
+            <figure class="feature-section section-{{ forloop.index }} promo-{{ forloop.index }} title-overlay-{{ section.settings.promo_text_on_image_enabled }}" {{ block.shopify_attributes }}>
+              <div class="feature-inner">
+                <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %}>
+                  {% if block.settings.image != blank %}
+                    {% render 'image-element',
+                            image: block.settings.image,
+                            alt: block.settings.image.alt,
+                            stretch_width: true,
+                            additional_classes: 'full-width-image'
+                    %}
+                  {% else %}
+                    {% capture i %}{% cycle "1", "2", "3", "4", "5", "6" %}{% endcapture %}
+                    {{ 'collection-' | append: i | placeholder_svg_tag: 'placeholder-svg placeholder-svg--promotions' }}
+                  {% endif %}
+                </a>
+
+                {% if section.settings.promo_text_on_image_enabled != blank %}
+                  <figcaption class="feature-overlay">
+                    <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %}class="link-promo"></a>
+
+                    <div class="feature-wrap">
+                      <div class="feature-details">
+                        {% if block.settings.title != blank %}
+                          <h2 class="title">
+                            <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %}>
+                              {{ block.settings.title | escape }}
+                            </a>
+                          </h2>
+                        {% endif %}
+
+                        {% if block.settings.text != blank %}
+                          <div class="description">
+                            {{ block.settings.text }}
+                          </div>
+                        {% endif %}
+
+                        {% if block.settings.button_label != blank %}
+                          <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %} class="action_button">
+                            {{ block.settings.button_label | escape }}
+                          </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </figcaption>
+                {% endif %}
+
+                {% if section.settings.promo_text_on_image_enabled == blank %}
+                  {% if block.settings.title != blank %}
+                    <h2 class="title">
+                      <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %}>
+                        {{ block.settings.title | escape }}
+                      </a>
+                    </h2>
+                  {% endif %}
+
+                  {% if block.settings.text != blank %}
+                    <div class="description">
+                      {{ block.settings.text }}
+                    </div>
+                  {% endif %}
+
+                  {% if block.settings.button_label != blank %}
+                    <a {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %} class="action_button">
+                      {{ block.settings.button_label | escape }}
+                    </a>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </figure>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+{% endif %}

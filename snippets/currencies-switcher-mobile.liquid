@@ -1,0 +1,42 @@
+{% comment %}
+Optional values
+additional_classes: <string>
+{% endcomment %}
+
+{%- if locale_selector == true -%}
+  <li class="sub-menu">
+    <a href="">{{ request.locale.endonym_name }}</a>
+    <span aria-haspopup="true" aria-expanded="false" data-menu-toggle="parent-toggle">+</span>
+    <ul class="{{ additional_classes }} disclosure-text-style-{{ settings.nav_font_style }}" data-menu-toggle="visible-toggle" style="display: none;">
+    {%- form 'localization', class: 'selectors-form' -%}
+      <input type="hidden" name="locale_code" id="LocaleSelector" value="{{ form.current_locale.iso_code }}" data-disclosure-input/>
+      {% for locale in form.available_locales %}
+        <li class="disclosure-list__item {% if locale.iso_code == form.current_locale.iso_code %}disclosure-list__item--current{% endif %}">
+          <button type="submit" class="disclosure__button" name="locale_code" value="{{ locale.iso_code }}">
+            {{ locale.endonym_name }}
+          </button>
+        </li>
+      {%- endfor -%}
+    {%- endform -%}
+    </ul>
+  </li>
+{%- endif -%}
+
+{%- if currency_selector == true -%}
+  <li class="sub-menu">
+    <a href="">{{ cart.currency.iso_code }} {%- if cart.currency.symbol -%}{{ cart.currency.symbol }}{%- endif -%}</a>
+    <span aria-haspopup="true" aria-expanded="false" data-menu-toggle="parent-toggle">+</span>
+    <ul class="{{ additional_classes }} disclosure-text-style-{{ settings.nav_font_style }}" data-menu-toggle="visible-toggle" style="display: none;">
+      {%- form 'localization', class: 'selectors-form' -%}
+        <input type="hidden" name="currency_code" id="CurrencySelector" value="{{ form.current_currency.iso_code }}" data-disclosure-input/>
+        {% for currency in form.available_currencies %}
+          <li class="disclosure-list__item {% if currency.iso_code == form.current_currency.iso_code %}disclosure-list__item--current{% endif %}">
+            <button type="submit" class="disclosure__button" name="currency_code" value="{{ currency.iso_code }}">
+              {{ currency.iso_code }} {%- if currency.symbol -%}{{ currency.symbol }}{%- endif -%}
+            </button>
+          </li>
+        {%- endfor -%}
+      {%- endform -%}
+    </ul>
+  </li>
+{%- endif -%}

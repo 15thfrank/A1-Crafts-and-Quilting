@@ -1,0 +1,103 @@
+{% comment %}
+** Gallery - dynamic **
+- Draggable section
+- Uses blocks
+{% endcomment %}
+
+{% comment %} Assign object as block or section {% endcomment %}
+{% if type == 'block' %}
+  {%- assign object = block -%}
+  {%- assign loop = "1,2,3" | split: ',' -%}
+  {%- assign images_per_row = 'block' -%}
+{% else %}
+  {%- assign object = section -%}
+  {%- assign loop = section.blocks -%}
+  {%- assign images_per_row = section.settings.images_per_row -%}
+{% endif %}
+
+{% comment %} Content settings {% endcomment %}
+{%- assign blocks = section.blocks -%}
+{%- capture title -%}
+  {{ object.settings.title | escape }}
+{%- endcapture -%}
+{% comment %} End content settings {% endcomment %}
+
+<section class="section {% if object.settings.wide_display == true %}is-width-wide has-no-side-gutter{% endif %}">
+  <div class="container gallery-section">
+    {% if title != blank %}
+      <div class="one-whole column">
+        <h2 class="title center">
+          {{ title }}
+        </h2>
+        <div class="feature_divider"></div>
+      </div>
+    {% endif %}
+
+    {% if section.blocks.size > 0 or loop.length > 0 %}
+      {% unless type == 'block' %}
+      <div class="one-whole column">
+      {% endunless %}
+        {% for item in loop %}
+          {% comment %} Content settings {% endcomment %}
+          {% if type == 'block' %}
+            {% capture index %}{{ forloop.index }}{% endcapture %}
+          {% else %}
+            {%- assign block = item -%}
+          {% endif %}
+
+          {% comment %}Add number to id for each loop{% endcomment %}
+          {% capture image %}image{{ index }}{% endcapture %}
+          {% capture link %}link{{ index }}{% endcapture %}
+          {% comment %} End content settings {% endcomment %}
+
+          <div class="{% if images_per_row == 2 %}
+                        gallery_image gallery--thumbnail two-per-row
+                      {% elsif images_per_row == 3 %}
+                        gallery_image gallery--thumbnail three-per-row
+                      {% elsif images_per_row == 'block' %}
+                        one-third column medium-down--one-whole gallery--thumbnail
+                      {% else %}
+                        gallery_image gallery--thumbnail four-per-row
+                      {% endif %}" {{ block.shopify_attributes }}>
+            {% if block.settings[image] %}
+              <a
+                href="javascript:;"
+                data-fancybox="{{ section.id }}"
+                data-src="{{ block.settings[image] | img_url: '800x' }}"
+                class="{% unless section.settings.wide_display or images_per_row == 'block' %}add-padding{% endunless %}"
+                rel="gallery"
+                >
+                {% render 'image-element',
+                        image: block.settings[image],
+                        alt: block.settings[image].alt,
+                        stretch_width: true
+                %}
+                <noscript>
+                  {% render 'image-element',
+                          image: block.settings[image],
+                          alt: block.settings[image].alt,
+                          stretch_width: true
+                  %}
+                </noscript>
+              </a>
+            {% else %}
+              <div class="{% unless object.settings.wide_display or images_per_row == 'block' %}add-padding{% endunless %}">
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+            {% endif %}
+          </div>
+
+          {% if images_per_row == 2 %}
+            {% cycle '', '<br />' %}
+          {% elsif images_per_row == 3 %}
+            {% cycle '', '', '<br />' %}
+          {% elsif images_per_row == 4 %}
+            {% cycle '', '', '', '<br />' %}
+          {% endif %}
+        {% endfor %}
+      {% unless type == 'block' %}
+      </div>
+      {% endunless %}
+    {% endif %}
+  </div>
+</section>

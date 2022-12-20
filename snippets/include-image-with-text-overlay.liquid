@@ -1,0 +1,83 @@
+{% comment %}
+** Image with text overlay - dynamic **
+- Draggable section
+{% endcomment %}
+
+{% comment %} Assign object as block or section {% endcomment %}
+{% if type == 'block' %}
+  {%- assign object = block -%}
+{% else %}
+  {%- assign object = section -%}
+{% endif %}
+
+{%- assign id = object.id -%}
+{%- assign wide_display = object.settings.wide_display -%}
+{%- assign image = object.settings.image -%}
+{%- assign title = object.settings.title | escape -%}
+{%- assign subtext = object.settings.subtext -%}
+{%- assign text_position = object.settings.text_position -%}
+{%- assign text_alignment = object.settings.text_align -%}
+{%- assign button_label = object.settings.button_label | escape -%}
+{%- assign link = object.settings.link -%}
+
+<section class="section {% if wide_display == true %}is-width-wide has-no-side-gutter{% endif %}">
+  <div class="container">
+    <div class="one-whole column">
+      <div class="banner-section">
+        {% if link != blank %}
+          <a href="{{ link }}">
+        {% endif %}
+
+        {% if image != blank %}
+          {% render 'image-element',
+                  image: image,
+                  alt: image.alt,
+                  stretch_width: true,
+                  additional_classes: 'banner-section__image'
+          %}
+        {% else %}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg placeholder-svg--image-with-text-overlay' }}
+        {% endif %}
+
+        {% if link != blank %}
+          </a>
+        {% endif %}
+
+        {% if image != blank or title != blank or subtext != blank or button_label != blank %}
+          <div class="banner-section__caption">
+            <div class="container">
+              <div class="{% if object.settings.text_position == 'left' %}
+                            one-half column offset-by-one
+                          {% elsif object.settings.text_position == 'right' %}
+                            one-half column offset-by-seven
+                          {% else %}
+                            five-eighths columns offset-by-three
+                          {% endif %}
+                          is-hidden-offset-mobile-only medium-down--one-whole align_{{ object.settings.text_align }}">
+                <div class="banner-section__caption-content">
+                  {% if title != blank %}
+                    <h1 class="banner-section__caption-headline">
+                      {{ title }}
+                    </h1>
+                  {% endif %}
+
+                  {% if subtext != blank %}
+                    <div class="banner-section__caption-subtitle">
+                      {{ subtext }}
+                    </div>
+                  {% endif %}
+
+                  {% if button_label != blank %}
+                    <a {% if link != blank %}href="{{ link }}"{% endif %} class="banner-section__caption-button action_button">
+                      {{ button_label }}
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>

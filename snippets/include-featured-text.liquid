@@ -1,0 +1,52 @@
+{% comment %}
+** Rich text - dynamic **
+- Draggable section
+{% endcomment %}
+
+{% comment %} Assign object as block or section {% endcomment %}
+{% if type == 'block' %}
+  {%- assign object = block -%}
+{% else %}
+  {%- assign object = section -%}
+{% endif %}
+
+{% comment %} Content settings {% endcomment %}
+{%- assign title = object.settings.title | escape -%}
+{%- assign content = object.settings.content -%}
+{%- assign image = object.settings.image -%}
+{%- assign button_label = object.settings.button_label -%}
+{%- assign button_link = object.settings.button_link -%}
+{% comment %} End content settings {% endcomment %}
+
+<section class="section">
+  <div class="container">
+    <div class="one-whole column">
+      {% if image != blank %}
+        {% render 'image-element',
+                image: image,
+                alt: image.alt,
+                additional_classes: 'richtext-logo align_center'
+        %}
+      {% endif %}
+
+      {% if title != blank %}
+        <h2 class="title {{ object.settings.text_alignment }}">
+          {{ title }}
+        </h2>
+        <div class="feature_divider {{ object.settings.text_alignment }}"></div>
+      {% endif %}
+
+      <div class="{{ object.settings.text_size }} {{ object.settings.text_alignment }}">
+        {% if content != blank %}
+          {{ content }}
+        {% endif %}
+
+        {% if button_label != blank %}
+          <a href="{{ button_link }}" class="action_button">
+            {{ button_label | escape }}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,71 @@
+{%- assign collection_group_mobile = linklist.handle -%}
+
+{% for link in linklist.links %}
+  {% comment %}
+    This section supports linking to collections, products, pages, and blogs. It will use the first image found in the page content or blog article.
+  {% endcomment %}
+
+  {%- assign link_item = link.object -%}
+  {%- assign link_image = '' -%}
+  {%- assign link_title = link.title | escape -%}
+
+  {% capture link_image %}
+    {% if link.type == 'collection_link' %}
+      {% if link_item.image %}
+        {%- assign image_src = link_item.image.src -%}
+      {% else %}
+        {%- assign image_src = link_item.products.first.featured_image -%}
+      {% endif %}
+    {% elsif link.type == 'catalog_link' %}
+      {%- assign collection = collections['all'] -%}
+      {% if collection.image %}
+        {%- assign image_src = collection.image.src -%}
+      {% else %}
+        {%- assign image_src = collection.products.first.featured_image -%}
+      {% endif %}
+    {% elsif link.type == 'product_link' %}
+      {%- assign image_src = link_item.featured_image -%}
+    {% elsif link.type == 'page_link' %}
+      {% if link_item.content contains "<img" %}
+        {%- assign src = link_item.content | split: 'src="' -%}
+        {%- assign src = src[1] | split: '"' | first -%}
+        {% if src %}
+          {%- assign image_src = src -%}
+        {% endif %}
+      {% endif %}
+    {% elsif link.type == 'blog_link' %}
+      {% if link_item.articles.first.image %}
+        {%- assign image_src = link_item.articles.first.image -%}
+      {% elsif link_item.articles.first.content contains "<img" %}
+        {%- assign src = link_item.articles.first.content | split: 'src="' -%}
+        {%- assign src = src[1] | split: '"' | first -%}
+        {% if src %}
+          {%- assign image_src = src -%}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+
+    {% render 'image-element',
+            image: image_src,
+            alt: link_title
+    %}
+  {% endcapture %}
+
+  <div class="{% render 'column-width', value: collections_per_row %} columns
+            {% if settings.mobile_products_per_row == '1' %}
+              medium-down--one-whole
+            {% else %}
+              medium-down--one-half
+            {% endif %}
+            thumbnail">
+    <a href="{{ link.url }}" title="{{ link_title }}">
+      {{ link_image }}
+
+      <div class="info">
+        <span class="title">
+          {{ link_title }}
+        </span>
+      </div>
+    </a>
+  </div>
+{% endfor %}

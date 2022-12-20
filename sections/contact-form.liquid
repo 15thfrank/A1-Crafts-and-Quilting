@@ -1,0 +1,80 @@
+{% include 'include-contact-form' %}
+
+{% schema %}
+  {
+    "name": "Contact form",
+    "class": "shopify-section--contact-form",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "contact_image",
+        "label": "Image",
+        "info": "800 x 800px recommended"
+      },
+      {
+        "type": "text",
+        "id": "contact_heading",
+        "label": "Heading",
+        "default": "Get in touch"
+      },
+      {
+        "type": "text",
+        "id": "contact_subheading",
+        "label": "Subheading",
+        "default": "Leave a message"
+      },
+      {
+        "type": "richtext",
+        "id": "contact_content",
+        "label": "Text",
+        "default": "<p>Use this text to include important information that you'd like your customers to be aware of when contacting you. You could include shop hours, email response times, other ways to contact you, or just some friendly text to encourage your customers to reach out.</p>"
+      },
+      {
+        "type": "select",
+        "id": "contact_text_position",
+        "label": "Text position",
+        "default": "row",
+        "options": [
+          {
+            "value": "row",
+            "label": "Left"
+          },
+          {
+            "value": "column",
+            "label": "Center"
+          },
+          {
+            "value": "row-reverse",
+            "label": "Right"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "contact_text_alignment",
+        "label": "Text alignment",
+        "default": "left",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          },
+          {
+            "value": "center",
+            "label": "Center"
+          },
+          {
+            "value": "right",
+            "label": "Right"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Contact form",
+        "category": "Store information"
+      }
+    ]
+  }
+{% endschema %}

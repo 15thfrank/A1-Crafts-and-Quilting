@@ -1,0 +1,633 @@
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Organization",
+    "name": "{{ shop.name }}",
+    {% if section.settings.logo %}
+      {% assign image_size = section.settings.logo.width | append:'x' %}
+      "logo": "https:{{ section.settings.logo | img_url: image_size }}",
+    {% endif %}
+    "sameAs": [
+      "{{ settings.twitter_link }}",
+      "{{ settings.facebook_link }}",
+      "{{ settings.pinterest_link }}",
+      "{{ settings.instagram_link }}",
+      "{{ settings.tumblr_link }}",
+      "{{ settings.snapchat_link }}",
+      "{{ settings.youtube_link }}",
+      "{{ settings.vimeo_link }}"
+    ],
+    "url": "{{ shop.url }}{{ page.url }}"
+  }
+</script>
+
+ {% if template.name == 'index' %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "name": "{{ shop.name }}",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ routes.search_url }}?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "url": "{{ shop.url }}{{ page.url }}"
+    }
+  </script>
+{% endif %}
+
+{%- assign locale_selector = false -%}
+{%- assign currency_selector = false -%}
+
+{%- if section.settings.show_currency_selector and shop.enabled_currencies.size > 1 -%}
+  {%- assign currency_selector = true -%}
+{%- endif -%}
+
+{%- if section.settings.show_locale_selector and shop.published_locales.size > 1 -%}
+  {%- assign locale_selector = true -%}
+{%- endif -%}
+
+{% if section.settings.show_announcement_bar != blank %}
+  <div class="promo_banner js-promo_banner">
+    {% if section.settings.announcement_link and section.settings.announcement_message != blank %}
+      <a href="{{ section.settings.announcement_link }}" tabindex="0">
+        <p>{{ section.settings.announcement_message }}</p>
+      </a>
+    {% elsif section.settings.announcement_message != blank %}
+      <p>{{ section.settings.announcement_message }}</p>
+    {% endif %}
+    <button class="promo_banner-close" tabindex="0"></button>
+  </div>
+{% endif %}
+
+<div class="header {% unless template contains "index" %}header_border{% else %}homepage{% endunless %}">
+  <section class="section">
+    <div class="container content nav">
+      <div class="one-fourth column medium-down--one-half logo header-logo">
+        <a href="{{ shop.url }}" title="{{ shop.name }}">
+          <span class="is-hidden is-visible--mobile logo--mobile">
+            {% if section.settings.logo_mobile != blank %}
+              {% render 'image-element',
+                      image: section.settings.logo_mobile,
+                      alt: section.settings.logo_mobile.alt,
+                      back_to_basics: true
+              %}
+            {% endif %}
+          </span>
+          {% if section.settings.logo_mobile != blank %}
+            {%- assign is_hidden = 'is-hidden-mobile-only' -%}
+          {% endif %}
+          <span class="{{ is_hidden }} logo--desktop">
+            {% if section.settings.logo != blank %}
+              {% render 'image-element',
+                      image: section.settings.logo,
+                      alt: shop.name
+              %}
+            {% else %}
+              {{ shop.name }}
+            {% endif %}
+          </span>
+        </a>
+      </div>
+
+      <div class="three-fourths columns medium-down--one-half">
+        <div class="mobile_menu_container" role="navigation">
+          <ul class="top_menu {% if settings.display_search_box %}search_nav{% endif %} is-hidden-mobile-only">
+            {% if section.settings.phone_number != blank %}
+              <li><a href="tel:{{ section.settings.phone_number | replace: ' ', '' | replace: '+', '' | replace: '-', '' }}">{{ section.settings.phone_number | escape }}</a></li>
+            {% endif %}
+            {% if section.settings.header_social_icons %}
+              <li>
+                {% render 'social-icons' %}
+              </li>
+            {% endif %}
+            {% if section.settings.top_bar_linklist != blank %}
+              {% assign top_bar_menu = linklists[section.settings.top_bar_linklist] %}
+              {% for link in top_bar_menu.links %}
+                <li>
+                  <a href="{{ link.url }}">{{ link.title }}</a>
+                </li>
+                {% for sub_link in link.links %}
+                  <li>
+                    <a href="{{ sub_link.url }}">{{ sub_link.title }}</a>
+                  </li>
+                  {% for sub_sub_link in sub_link.links %}
+                    <li>
+                      <a href="{{ sub_sub_link.url }}">{{ sub_sub_link.title }}</a>
+                    </li>
+                  {% endfor %}
+                {% endfor %}
+              {% endfor %}
+            {% endif %}
+            {% if shop.customer_accounts_enabled %}
+              {% if customer %}
+                <li>
+                  <a href="{{ routes.account_url }}">{{ customer.name }}</a>
+                </li>
+                <li>
+                  <a href="{{ routes.account_logout_url }}" title="{{ 'layout.customer.my_account' | t | escape }}" data-no-instant>{{ 'layout.customer.log_out' | t }}</a>
+                </li>
+              {% else %}
+                <li>
+                  <a href="{{ routes.account_login_url }}" title="{{ 'layout.customer.my_account' | t | escape }}" data-no-instant>{{ 'layout.customer.log_in' | t }}</a>
+                </li>
+              {% endif %}
+            {% endif %}
+            {% if currency_selector == true or locale_selector == true %}
+              <li class="currencies">
+                {% render 'currencies-switcher',
+                    additional_classes: 'header-menu__disclosure',
+                    id: 'header__selector-form',
+                    currency_selector: currency_selector,
+                    locale_selector: locale_selector
+                %}
+              </li>
+            {% endif %}
+            {% if section.settings.display_search_box %}
+              <li>
+                <div data-autocomplete-{{ settings.enable_autocomplete }}>
+                  <form class="search search__form" action="{{ routes.search_url }}">
+                    <input type="hidden" name="type" value="{{ settings.search_option }}" />
+                    <input type="text" name="q" class="search_box" placeholder="{{ 'general.search.placeholder' | t }}" value="{% if search and search.results.first.price %}{{ search.terms }}{% endif %}" autocapitalize="off" autocomplete="off" autocorrect="off" />
+                  </form>
+                </div>
+              </li>
+            {% endif %}
+          </ul>
+          <!-- Main Nav -->
+          <ul class="main menu is-hidden-mobile-only">
+            {%- assign main_menu = linklists[section.settings.main_linklist] -%}
+
+            {% for link in main_menu.links %}
+              {% comment %}
+                Find which menu items get a megamenu
+              {% endcomment %}
+              {% for block in section.blocks %}
+                {%- assign linkHandle = link.title | handleize | lowercase -%}
+                {%- assign blockHandle = block.settings.mega_menu_title | handleize | lowercase -%}
+
+                {% if blockHandle == linkHandle %}
+                  {%- assign mega_menu = linklists[block.settings.mega_linklist] -%}
+                  {%- assign mega_text = block.settings.mega_text -%}
+                  {%- assign mega_text_url = block.settings.mega_text_url -%}
+                  {%- assign mega_id = block.id -%}
+
+                  {%- assign column_position = block.settings.column_position -%}
+                  {%- assign column_title = block.settings.column_title -%}
+                  {%- assign column_text = block.settings.column_text -%}
+                  {%- assign column_link = block.settings.column_link -%}
+                  {%- assign column_image = block.settings.column_image -%}
+
+
+                  {% if column_title != blank or column_text != blank or column_image != blank %}
+                    {%- assign megaMenuColumnAmount = mega_menu.links.size | plus: 1 -%}
+                  {% else %}
+                    {%- assign megaMenuColumnAmount = mega_menu.links.size -%}
+                  {% endif %}
+
+                  {%- assign hasSlick = 'slicknav_item' -%}
+                {% endif %}
+
+                {% if megaMenuColumnAmount > 5 %}
+                  <style>
+                    .mega-menu__id-{{ mega_id }} .mega-menu__column {
+                      width: calc(20% + 1px);
+                    }
+                  </style>
+                {% endif %}
+
+                {% if linkHandle == blockHandle %}
+                  {%- assign hasMegaMenu = true -%}
+                  <style>
+                    .mega-menu__id-{{ mega_id }} .mega-menu__banner {
+                      background-color: {{ block.settings.mega_menu_banner_bg }};
+                    }
+                    .mega-menu__id-{{ mega_id }} .mega-menu__banner p {
+                      color: {{ block.settings.mega_menu_banner_text }};
+                    }
+                  </style>
+                  {% break %}
+                {% else %}
+                  {% assign hasMegaMenu = false %}
+                {% endif %}
+
+              {% endfor %}
+
+              {% if hasMegaMenu == true %}
+                {% render 'menu',
+                        link: link,
+                        mega_menu: mega_menu,
+                        mega_text: mega_text,
+                        mega_text_url: mega_text_url,
+                        mega_id: mega_id,
+                        column_position: column_position,
+                        column_title: column_title,
+                        column_text: column_text,
+                        column_link: column_link,
+                        column_image: column_image,
+                        type: 'mega'
+                %}
+              {% else %}
+                {% render 'menu', link: link %}
+              {% endif %}
+            {% endfor %}
+          </ul>
+
+          <ul class="nav_buttons menu">
+            <li class="navicon_button">
+              <a href="#" class="navicon" title="{{ 'layout.general.menu' | t }}" aria-haspopup="true" aria-label="{{ 'layout.general.menu' | t }}"><span class="icon-menu"></span><span class="button_label">{{ 'layout.general.menu' | t }}</span></a>
+            </li>
+            {% if section.settings.display_search_box %}
+              <li>
+                <a href="{{ routes.search_url }}" class="search-button icon-search"></a>
+              </li>
+            {% endif %}
+            <li>
+              <a href="{{ routes.cart_url }}" class="cart_button {% if cart.item_count > 0 %}active{% endif %}" title="{{ 'layout.general.cart' | t }}"><span class="{% if section.settings.cart_icon == "cart" %}icon-cart{% else %}icon-bag{% endif %}"></span><span class="button_label">{{ 'layout.general.cart' | t }}</span>{% if cart.item_count > 0 %}<span class="cart_count"> ({{ cart.item_count }})</span>{% endif %}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="nav">
+  <ul class="mobile_menu toggle_menu">
+  <!-- Mobile Menu -->
+    <ul class="mobile-mega-menu" role="navigation">
+      {%- assign main_menu = linklists[section.settings.main_linklist] -%}
+
+      {% for link in main_menu.links %}
+        {% comment %}
+          Find which menu items get a megamenu
+        {% endcomment %}
+        {% for block in section.blocks %}
+          {%- assign linkHandle = link.title | handleize | lowercase -%}
+          {%- assign blockHandle = block.settings.mega_menu_title | handleize | lowercase -%}
+
+          {% if blockHandle == linkHandle %}
+            {%- assign mega_menu = linklists[block.settings.mega_linklist] -%}
+            {%- assign mega_text = block.settings.mega_text -%}
+            {%- assign mega_text_url = block.settings.mega_text_url -%}
+            {%- assign mega_id = block.id -%}
+            {%- assign column_position = block.settings.column_position -%}
+            {%- assign column_title = block.settings.column_title -%}
+            {%- assign column_text = block.settings.column_text -%}
+            {%- assign column_link = block.settings.column_link -%}
+            {%- assign column_image = block.settings.column_image -%}
+          {% endif %}
+
+          {% if linkHandle == blockHandle %}
+            {%- assign hasMegaMenu = true -%}
+            {% break %}
+          {% else %}
+            {%- assign hasMegaMenu = false -%}
+          {% endif %}
+        {% endfor %}
+
+        {% if hasMegaMenu == true %}
+          {% render 'mobile-menu',
+                  link: link,
+                  mega_menu: mega_menu,
+                  mega_text: mega_text,
+                  mega_text_url: mega_text_url,
+                  mega_id: mega_id,
+                  column_position: column_position,
+                  column_title: column_title,
+                  column_text: column_text,
+                  column_link: column_link,
+                  column_image: column_image,
+                  type: 'mega'
+          %}
+        {% else %}
+          {% render 'mobile-menu', link: link %}
+        {% endif %}
+      {% endfor %}
+    </ul>
+
+    {% if section.settings.top_bar_linklist != blank %}
+      {% for link in linklists[section.settings.top_bar_linklist].links %}
+        <li>
+          <a href="{{ link.url }}" title="{{ link.title }}">{{ link.title }}</a>
+        </li>
+      {% endfor %}
+    {% endif %}
+
+    {% if shop.customer_accounts_enabled %}
+      {% if customer %}
+        <li>
+          <a href="{{ routes.account_url }}">{{ customer.name }}</a>
+        </li>
+        <li>
+          <a href="{{ routes.account_logout_url }}" id="customer_logout_link">{{ 'layout.customer.log_out' | t }}</a>
+        </li>
+      {% else %}
+        <li>
+          <a href="{{ routes.account_login_url }}" id="customer_login_link">{{ 'layout.customer.log_in' | t }}</a>
+        </li>
+      {% endif %}
+    {% endif %}
+
+    {% if section.settings.phone_number != blank %}
+      <li><a href="tel:{{ section.settings.phone_number | replace: ' ', '' | replace: '+', '' | replace: '-', '' }}">{{ section.settings.phone_number | escape }}</a></li>
+    {% endif %}
+
+    {% if currency_selector == true or locale_selector == true %}
+      {% render 'currencies-switcher-mobile',
+              additional_classes: 'mobile-menu__disclosure',
+              currency_selector: currency_selector,
+              locale_selector: locale_selector
+      %}
+    {% endif %}
+  </ul>
+</div>
+<div class="fixed_header"></div>
+
+<style>
+  .header-logo.logo a {
+    max-width: {{ section.settings.logo_width | escape }}px;
+    padding-top: {{ section.settings.logo_top_padding }}px;
+  }
+
+  ul.top_menu {
+    padding-top: {{ section.settings.menu_top_padding }}px;
+  }
+
+  div.promo_banner {
+    background-color: {{ section.settings.announcement_color }};
+    {% if section.settings.announcement_homepage_only %}
+      display: none;
+    {% endif %}
+  }
+
+  {% if section.settings.announcement_homepage_only %}
+    .index .promo_banner {
+      display: block;
+    }
+  {% endif %}
+
+  div.promo_banner a,
+  div.promo_banner p,
+  .promo_banner-close {
+    color: {{ section.settings.announcement_text_color }};
+  }
+
+</style>
+
+{% schema %}
+  {
+    "name": "Header",
+    "class": "shopify-section--header",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Announcement bar"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_announcement_bar",
+        "label": "Show announcement",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "announcement_homepage_only",
+        "label": "Home page only",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "announcement_message",
+        "label": "Text"
+      },
+      {
+        "type": "url",
+        "id": "announcement_link",
+        "label": "Link"
+      },
+      {
+        "type": "color",
+        "id": "announcement_color",
+        "label": "Bar",
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "announcement_text_color",
+        "label": "Text",
+        "default": "#ffffff"
+      },
+      {
+        "type": "header",
+        "content": "Top bar"
+      },
+      {
+        "type": "text",
+        "id": "phone_number",
+        "label": "Phone number",
+        "info": "1-800-555-5555"
+      },
+      {
+        "type": "checkbox",
+        "id": "header_social_icons",
+        "label": "Show social media icons",
+        "default": false
+      },
+      {
+        "type": "link_list",
+        "id": "top_bar_linklist",
+        "label": "Top menu",
+        "info": "This menu won't show drop-down items"
+      },
+      {
+        "type": "checkbox",
+        "id": "display_search_box",
+        "label": "Show search",
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": "Language selector",
+        "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_locale_selector",
+        "label": "Show language selector",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Currency selector",
+        "info": "To add a payment, go to your [currency settings.](/admin/settings/payments)"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_currency_selector",
+        "label": "Show currency selector",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Logo"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo",
+        "info": "560px wide recommended"
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "label": "Logo display width",
+        "step": 5,
+        "min": 180,
+        "max": 280,
+        "default": 280,
+        "unit": "px"
+      },
+      {
+        "type": "range",
+        "id": "logo_top_padding",
+        "label": "Logo top padding",
+        "info": "[Learn more](https:\/\/help.outofthesandbox.com\/hc\/en-us\/articles\/115006910627)",
+        "min": 0,
+        "max": 30,
+        "default": 0,
+        "unit": "px"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo_mobile",
+        "label": "Mobile logo",
+        "info": "410px wide recommended"
+      },
+      {
+        "type": "header",
+        "content": "Navigation"
+      },
+      {
+        "type": "link_list",
+        "id": "main_linklist",
+        "label": "Main menu",
+        "default": "main-menu"
+      },
+      {
+        "type": "range",
+        "id": "menu_top_padding",
+        "label": "Navigation top padding",
+        "info": "[Learn more](https://help.outofthesandbox.com/hc/en-us/articles/115006910627)",
+        "min": 0,
+        "max": 30,
+        "default": 0,
+        "unit": "px"
+      },
+      {
+        "type": "select",
+        "id": "cart_icon",
+        "label": "Cart icon",
+        "default": "cart",
+        "options": [
+          {
+            "value": "cart",
+            "label": "Cart"
+          },
+          {
+            "value": "bag",
+            "label": "Bag"
+          }
+        ]
+      }
+    ],
+    "blocks": [
+      {
+        "type": "menu",
+        "name": "Mega menu",
+        "settings": [
+          {
+            "type": "text",
+            "id": "mega_menu_title",
+            "label": "Link title",
+            "info": "The [mega menu](https://help.outofthesandbox.com/hc/en-us/articles/360022082174) will appear below this parent link"
+          },
+          {
+            "type": "link_list",
+            "id": "mega_linklist",
+            "label": "Mega menu"
+          },
+          {
+            "type": "header",
+            "content": "Content column"
+          },
+          {
+            "type": "text",
+            "id": "column_title",
+            "label": "Heading",
+            "default": "Catalog"
+          },
+          {
+            "type": "image_picker",
+            "id": "column_image",
+            "label": "Image",
+            "info": "800 x 800px recommended"
+          },
+          {
+            "type": "text",
+            "id": "column_text",
+            "label": "Text"
+          },
+          {
+            "type": "url",
+            "id": "column_link",
+            "label": "URL"
+          },
+          {
+            "type": "select",
+            "id": "column_position",
+            "label": "Position",
+            "options": [
+              {
+                "value": "first_column",
+                "label": "First column"
+              },
+              {
+                "value": "last_column",
+                "label": "Last column"
+              }
+            ],
+            "default": "first_column"
+          },
+          {
+            "type": "header",
+            "content": "Bottom banner"
+          },
+          {
+            "type": "text",
+            "id": "mega_text",
+            "label": "Text"
+          },
+          {
+            "type": "url",
+            "id": "mega_text_url",
+            "label": "Link"
+          },
+          {
+            "type": "color",
+            "id": "mega_menu_banner_bg",
+            "label": "Background",
+            "default": "#ffffff"
+          },
+          {
+            "type": "color",
+            "id": "mega_menu_banner_text",
+            "label": "Text",
+            "default": "#404040"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

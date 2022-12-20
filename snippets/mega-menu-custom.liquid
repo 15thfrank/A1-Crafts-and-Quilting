@@ -1,0 +1,47 @@
+{% if column_link != blank %}
+  {% assign valid_link = true %}
+{% else %}
+  {% assign valid_link = false %}
+{% endif %}
+
+<div class="mega-menu__column mega-menu__custom-column column_divider_active">
+  {% if column_title != blank %}
+    <h3 class="mega-menu__subtitle {% if valid_link == blank %} mega-menu__content-title {% endif %}">
+      {% if valid_link %}
+        <a href="{{ column_link }}">
+      {% endif %}
+        {{ column_title }}
+      {% if valid_link %}
+        </a>
+      {% endif %}
+    </h3>
+  {% endif %}
+
+  {% if valid_link %}
+    <a href="{{ column_link }}">
+  {% endif %}
+
+  {% if column_image %}
+    {% render 'image-element',
+            image: column_image,
+            alt: column_image.alt,
+            additional_classes: 'mega-menu__custom-image mega-menu__image'
+    %}
+  {% endif %}
+
+  {% if valid_link %}
+    </a>
+  {% endif %}
+
+  <div class="mega-menu__text">
+    {% if column_text != blank %}
+      {% if column_link != blank %}
+        <a class="content-column-link" href="{{ column_link }}">
+      {% endif %}
+      <p class="content-colum-text">{{ column_text }}</p>
+      {% if column_link != blank %}
+        </a>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>

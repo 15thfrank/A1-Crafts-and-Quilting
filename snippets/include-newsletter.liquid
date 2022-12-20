@@ -1,0 +1,38 @@
+{% comment %}
+** Newsletter - dynamic **
+- Draggable section
+{% endcomment %}
+
+{% comment %} Assign object as block or section {% endcomment %}
+{% if type == 'block' %}
+  {%- assign object = block -%}
+{% else %}
+  {%- assign object = section -%}
+{% endif %}
+
+{% comment %} Content section {% endcomment %}
+{%- assign title = object.settings.title -%}
+{%- assign newsletter_richtext = object.settings.newsletter_richtext -%}
+{% comment %} End content section {% endcomment %}
+
+<section class="section {% if object.settings.wide_display == true %}is-width-wide has-no-side-gutter{% endif %}">
+  <div class="container">
+    <div class="one-whole column">
+      <div class="newsletter-wrap newsletter--{{ object.settings.text_align }}">
+        <div class="text text-align--{{ object.settings.text_align }}">
+          {% if title %}
+            <h2>{{ title }}</h2>
+          {% endif %}
+
+          {% if newsletter_richtext != blank %}
+            <div class="newsletter-text">
+              {{ newsletter_richtext }}
+            </div>
+          {% endif %}
+
+          {% render 'newsletter' %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

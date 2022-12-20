@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="{{ shop.locale }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="cleartype" content="on">
+    <meta name="robots" content="index,follow">
+
+    {% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %}{% endif %}
+    <title>{% if template contains "index" %}{{ page_title }}{% else %}{{ page_title }}{% if current_tags %} {{ 'general.meta.tagged_html' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} {{ 'general.meta.page' | t: page_number: current_page }}{% endif %}{% unless page_title contains shop.name %} - {{ shop.name }}{% endunless %}{% endif %}</title>
+
+    {% if page_description %}
+      <meta name="description" content="{{ page_description | escape }}{% if current_tags %} {{ 'general.meta.tagged_html' | t: tags: meta_tags | escape }}.{% endif %}{% if current_page != 1 %} {{ 'general.meta.page' | t: page_number: current_page }}.{% endif %}" />
+    {% endif %}
+
+    {% render 'social-meta-info' %}
+
+    {% if collection.previous_product %}
+      <link rel="prev" href="{{ collection.previous_product }}">
+    {% endif %}
+    {% if collection.next_product %}
+      <link rel="next" href="{{ collection.next_product }}">
+    {% endif %}
+
+    <!-- Mobile Specific Metas -->
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="{{ settings.shop_bg_color }}">
+
+    <!-- Stylesheet for Fancybox library -->
+    {{ 'fancybox.css' | asset_url | stylesheet_tag }}
+
+    <!-- Stylesheets for Mobilia 6.2.5 -->
+    {{ 'styles.css' | asset_url | stylesheet_tag }}
+
+    <!-- Favicons -->
+    {% render 'favicons' %}
+
+    <link rel="canonical" href="{{ canonical_url }}" />
+
+    {% if template contains 'customer' %}
+      {{ "shopify_common.js" | shopify_asset_url | script_tag }}
+      {{ "customer_area.js"  | shopify_asset_url | script_tag }}
+    {% endif %}
+
+    {% if settings.show_multiple_currencies or settings.show_shipping_calculator %}
+      <script type="text/javascript" src="/services/javascripts/currencies.js" data-no-instant></script>
+    {% endif %}
+
+    <script>
+      {% render 'js-variables' %}
+
+      //Lazysizes expand area for loading (makes images load faster)
+      window.lazySizesConfig = window.lazySizesConfig || {};
+      window.lazySizesConfig.expand = 300;
+      lazySizesConfig.loadHidden = false;
+    </script>
+
+    {{ 'app.js' | asset_url | script_tag }}
+
+    {%- if settings.show_multiple_currencies or shop.enabled_currencies.size > 1 -%}
+      <script defer src="{{ 'currencies.js' | asset_url }}"></script>
+    {%- endif -%}
+
+    {{ content_for_header }}
+
+    <noscript>
+      <style>
+        .image__fallback {
+          width: 100vw;
+          display: block !important;
+          max-width: 100vw !important;
+          margin-bottom: 0;
+        }
+        .no-js-only {
+          display: inherit !important;
+        }
+        .icon-cart.cart-button {
+          display: none;
+        }
+        .lazyload {
+          opacity: 1;
+          -webkit-filter: blur(0);
+          filter: blur(0);
+        }
+        .animate_right,
+        .animate_left,
+        .animate_up,
+        .animate_down {
+          opacity: 1;
+        }
+        .product_section .product_form {
+          opacity: 1;
+        }
+        .multi_select,
+        form .select {
+          display: block !important;
+        }
+        .swatch_options {
+          display: none;
+        }
+      </style>
+    </noscript>
+  </head>
+  <body class="{{ template | replace: '.', '-' | handle }}"
+    data-shop-currency="{{ shop.currency }}"
+    data-money-format="
+    {%- if settings.currency_format == 'money_with_currency_format' -%}
+      {{ shop.money_with_currency_format | strip_html }}
+    {%- else -%}
+      {{ shop.money_format | strip_html }}
+    {%- endif -%}"
+    data-active-currency="{{ shop.currency }}"
+    data-shop-url="{{ shop.url }}"
+    data-current-lang="{{ request.locale.iso_code }}">
+
+    {% section 'header' %}
+
+    {{ content_for_layout }}
+
+    {% render 'cart-shipping-calculator' %}
+
+    {% section 'footer' %}
+
+    {% if settings.size_chart != blank and template contains 'product'  %}
+      {% render 'size-chart-popup' %}
+    {% endif %}
+
+    {% if settings.newsletter_popup %}
+      {% render 'newsletter-popup' %}
+    {% endif %}
+
+    {% render 'mobile-search' %}
+
+    {% if settings.disqus_enabled %}
+      {% if template contains "blog" or template contains "article" or template contains "index" %}
+        <script id="dsq-count-scr" src="//{{ settings.disqus_shortname }}.disqus.com/count.js" async></script>
+      {% endif %}
+    {% endif %}
+  </body>
+</html>
